@@ -1,2 +1,242 @@
-# hotel-system
-3meira betch 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3meira Betch - نظام إدارة الشاليهات</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 60px; }
+        
+        /* الاسم فوق في أعلى الصفحة */
+        .brand-header { text-align: center; padding: 20px 0; background: var(--primary); color: white; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .brand-header h1 { font-size: 28px; font-weight: bold; letter-spacing: 1px; }
+        .brand-header p { font-size: 14px; color: #94a3b8; margin-top: 5px; }
+
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .section-title { font-size: 18px; font-weight: bold; color: var(--accent); margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 15px; margin-bottom: 8px; color: #334155; font-weight: 600; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; background: #fff; color: var(--text); transition: all 0.2s; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 234, 0.1); }
+        
+        /* مظهر معرض الميديا للشاليهات */
+        .media-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; text-align: center; margin-top: 10px; }
+        .media-box img, .media-box video { width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; display: block; }
+        .media-title { font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 8px; }
+
+        .badge { display: inline-block; background: #dbeafe; color: var(--accent); padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 15px; margin-top: 4px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 234, 0.2); }
+        .btn-success { background: var(--success); color: white; margin-top: 8px; font-size: 14px; padding: 10px; }
+        .btn-danger { background: var(--danger); color: white; padding: 6px 12px; font-size: 13px; width: auto; border-radius: 6px; }
+        .visitor-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; background: #f1f5f9; padding: 8px; border-radius: 8px; }
+        .visitor-row input { flex: 1; padding: 8px; }
+        
+        /* الـ Modal (النافذة المنبثقة للتأكيد) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal { background: white; width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: pop 0.3s ease; }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 12px; color: #000; }
+        .modal-body { font-size: 16px; color: #334155; margin-bottom: 24px; line-height: 1.6; }
+        .modal-btn { background: #f1f5f9; color: #0f172a; border: none; padding: 12px 0; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .saving-screen { display: none; text-align: center; font-size: 18px; color: #475569; padding: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="brand-header">
+        <h1>3meira Betch</h1>
+        <p>نظام إدارة الحجوزات والتصاريح الذكي</p>
+    </div>
+
+    <form id="appForm" onsubmit="handleFormSubmit(event)">
+        
+        <div class="card">
+            <div class="section-title">بيانات ومعرض الشاليه</div>
+            <div class="form-group">
+                <label>اختر رقم الشاليه (من 1 إلى 50)</label>
+                <select id="chaletSelect" onchange="updateChaletMedia()">
+                    </select>
+            </div>
+            
+            <div class="media-box">
+                <div class="media-title" id="mediaTitle">صور وفيديو شاليه رقم 1</div>
+                <div id="mediaContainer">
+                    </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">تفاصيل الإقامة والإيجار</div>
+            
+            <div class="form-group">
+                <label>تاريخ الدخول</label>
+                <input type="date" id="checkIn" required onchange="calculateDays()">
+            </div>
+            
+            <div class="form-group">
+                <label>تاريخ الخروج</label>
+                <input type="date" id="checkOut" required onchange="calculateDays()">
+            </div>
+            
+            <div class="form-group">
+                <div class="badge" id="daysDisplay">عدد الأيام: 0</div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 12px;">
+                <label>مبلغ الإيجار الإجمالي (جنيه)</label>
+                <input type="number" id="rentAmount" placeholder="مثال: 2400">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">بيانات الدفع والتحصيل</div>
+            <div class="form-group">
+                <label>رقم فودافون كاش للمحول</label>
+                <input type="tel" id="vodafoneCash" placeholder="مثال: 01012345678" pattern="[0-9]{11}" title="يرجى إدخال رقم هاتف صحيح مكون من 11 رقم">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">بيانات الزوار والمرافقين</div>
+            <div id="visitorsContainer">
+                </div>
+            <button type="button" class="btn btn-success" onclick="addVisitorRow()">+ إضافة زائر / مرافق جديد</button>
+        </div>
+
+        <div style="margin-top: 20px; margin-bottom: 40px;">
+            <button type="submit" class="btn btn-primary" id="submitBtn">حفظ وتأكيد الحجز</button>
+            <div class="saving-screen" id="savingScreen">جاري الحفظ...</div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-title" id="modalTitle">يعرض موقع المقطع</div>
+        <div class="modal-body" id="modalBody">
+            ✅ تم حفظ التصريح بنجاح لقرية <br><strong style="color: #2563eb;">3meira Betch</strong> برقم:<br>
+            <strong style="font-size: 28px; color: #16a34a;" id="successPermitId">0000</strong>
+        </div>
+        <button class="modal-btn" onclick="closeModal()">حسناً</button>
+    </div>
+</div>
+
+<script>
+    // توليد الـ 50 شاليه داخل القائمة وتعيين التواريخ عند التحميل
+    window.onload = function() {
+        const select = document.getElementById('chaletSelect');
+        for (let i = 1; i <= 50; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = "شاليه رقم " + i;
+            select.appendChild(opt);
+        }
+
+        const today = new Date();
+        const nextTenDays = new Date();
+        nextTenDays.setDate(today.getDate() + 10);
+        
+        document.getElementById('checkIn').value = today.toISOString().split('T')[0];
+        document.getElementById('checkOut').value = nextTenDays.toISOString().split('T')[0];
+        calculateDays();
+        
+        // تحديث الميديا للشاليه رقم 1 تلقائياً
+        updateChaletMedia();
+        
+        // تعيين اسم الموقع للـ Modal
+        document.getElementById('modalTitle').innerText = "يعرض موقع \n" + window.location.hostname;
+        
+        // إضافة خانة زائر أولى تلقائياً
+        addVisitorRow();
+    };
+
+    // دالة تحديث الصور والفيديوهات بناءً على رقم الشاليه المختار
+    function updateChaletMedia() {
+        const chaletId = document.getElementById('chaletSelect').value;
+        document.getElementById('mediaTitle').innerText = "صور وفيديو شاليه رقم " + chaletId;
+        
+        const container = document.getElementById('mediaContainer');
+        
+        // هنا يمكنك وضع روابط صور وفيديوهات حقيقية لشاليهاتك بدلاً من الروابط الافتراضية هذه
+        container.innerHTML = `
+            <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500&auto=format&fit=crop" alt="صورة الشاليه">
+            <video controls poster="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500">
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                متصفحك لا يدعم تشغيل الفيديو.
+            </video>
+        `;
+    }
+
+    // حساب عدد الأيام
+    function calculateDays() {
+        const checkInStr = document.getElementById('checkIn').value;
+        const checkOutStr = document.getElementById('checkOut').value;
+        
+        if (checkInStr && checkOutStr) {
+            const inDate = new Date(checkInStr);
+            const outDate = new Date(checkOutStr);
+            const timeDiff = outDate.getTime() - inDate.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            document.getElementById('daysDisplay').innerText = "عدد الأيام: " + (daysDiff > 0 ? daysDiff : 0);
+        }
+    }
+
+    // إضافة سطر للزوار
+    function addVisitorRow() {
+        const container = document.getElementById('visitorsContainer');
+        const row = document.createElement('div');
+        row.className = 'visitor-row';
+        row.innerHTML = `
+            <input type="text" placeholder="اسم الزائر / المرافق" required>
+            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">حذف</button>
+        `;
+        container.appendChild(row);
+    }
+
+    // تشغيل الحفظ والـ Modal
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const savingScreen = document.getElementById('savingScreen');
+        
+        // توليد رقم تصريح عشوائي مميز
+        const randomPermit = Math.floor(1000 + Math.random() * 9000);
+        
+        submitBtn.style.display = 'none';
+        savingScreen.style.display = 'block';
+        
+        setTimeout(() => {
+            submitBtn.style.display = 'block';
+            savingScreen.style.display = 'none';
+            
+            document.getElementById('successPermitId').innerText = randomPermit;
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }, 1500);
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById('appForm').reset();
+        document.getElementById('visitorsContainer').innerHTML = '';
+        window.onload();
+    }
+</script>
+
+</body>
+</html>
