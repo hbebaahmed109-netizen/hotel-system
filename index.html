@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة التصاريح والشاليهات</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 60px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-title { font-size: 16px; font-weight: bold; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-size: 14px; margin-bottom: 6px; color: #475569; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; background: #fff; color: var(--text); }
+        input:focus, select:focus { border-color: var(--accent); ring: 2px solid #93c5fd; }
+        .badge { display: inline-block; background: #dbeafe; color: var(--accent); padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-top: 4px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; padding: 6px 12px; font-size: 13px; width: auto; border-radius: 6px; }
+        .btn-success { background: var(--success); color: white; margin-top: 8px; font-size: 14px; padding: 8px; }
+        .visitor-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; background: #f1f5f9; padding: 8px; border-radius: 8px; }
+        .visitor-row input { flex: 1; padding: 6px 10px; }
+        
+        /* Modal Style */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal { background: white; width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: pop 0.3s ease; }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 22px; font-weight: bold; margin-bottom: 12px; color: #000; }
+        .modal-body { font-size: 16px; color: #334155; margin-bottom: 24px; line-height: 1.6; }
+        .modal-btn { background: #f1f5f9; color: #0f172a; border: none; padding: 12px 0; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .saving-screen { display: none; text-align: center; font-size: 18px; color: #475569; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form id="appForm" onsubmit="handleFormSubmit(event)">
+        <!-- بيانات المالك والوحدة -->
+        <div class="card">
+            <div class="section-title">بيانات المالك والوحدة</div>
+            
+            <div class="form-group">
+                <label>رقم التصريح (يدوي)</label>
+                <input type="text" id="permitId" required placeholder="مثال: 08017">
+            </div>
+            
+            <div class="form-group">
+                <label>اسم المالك</label>
+                <input type="text" id="ownerName" required placeholder="أدخل اسم المالك بالكامل">
+            </div>
+            
+            <div class="form-group">
+                <label>المجموعة</label>
+                <select id="groupNum">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>الشاليه</label>
+                <input type="text" id="chaletNum" required placeholder="مثال: 4/5">
+            </div>
+            
+            <div class="form-group">
+                <label>الدور</label>
+                <select id="floor">
+                    <option value="الأرضي">الأرضي</option>
+                    <option value="الأول">الأول</option>
+                    <option value="الثاني" selected>الثاني</option>
+                    <option value="العلوي">العلوي</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>الوحدة</label>
+                <select id="unitNum">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>المساحة</label>
+                <input type="number" id="area" required placeholder="مثال: 77">
+            </div>
+            
+            <div class="form-group">
+                <label>اسم الشركة</label>
+                <select id="companyName">
+                    <option value="">اختر الشركة</option>
+                    <option value="الشركة العالمية">الشركة العالمية</option>
+                    <option value="دلتا للاستثمار">دلتا للاستثمار</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- تفاصيل الإقامة والإيجار -->
+        <div class="card">
+            <div class="section-title">تفاصيل الإقامة والإيجار</div>
+            
+            <div class="form-group">
+                <label>تاريخ الدخول</label>
+                <input type="date" id="checkIn" required onchange="calculateDays()">
+            </div>
+            
+            <div class="form-group">
+                <label>تاريخ الخروج</label>
+                <input type="date" id="checkOut" required onchange="calculateDays()">
+            </div>
+            
+            <div class="form-group">
+                <div class="badge" id="daysDisplay">عدد الأيام: 0</div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 12px;">
+                <label>مبلغ الإيجار</label>
+                <input type="number" id="rentAmount" required placeholder="مثال: 2400">
+            </div>
+        </div>
+
+        <!-- بيانات الزوار -->
+        <div class="card">
+            <div class="section-title">بيانات الزوار</div>
+            <div id="visitorsContainer">
+                <!-- الزوار المضافون سيظهرون هنا -->
+            </div>
+            <button type="button" class="btn btn-success" onclick="addVisitorRow()">+ إضافة زائر جديد</button>
+        </div>
+
+        <!-- زر الحفظ الأساسي -->
+        <div style="margin-top: 20px; margin-bottom: 40px;">
+            <button type="submit" class="btn btn-primary" id="submitBtn">حفظ التصريح</button>
+            <div class="saving-screen" id="savingScreen">جاري الحفظ...</div>
+        </div>
+    </form>
+</div>
+
+<!-- النافذة المنبثقة للتأكيد (Modal) -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-title" id="modalTitle">يعرض موقع المقطع</div>
+        <div class="modal-body" id="modalBody">
+            ✅ تم حفظ التصريح بنجاح برقم:<br>
+            <strong style="font-size: 24px; color: #16a34a;" id="successPermitId">0000</strong>
+        </div>
+        <button class="modal-btn" onclick="closeModal()">حسناً</button>
+    </div>
+</div>
+
+<script>
+    // تعيين تواريخ افتراضية عند تحميل الصفحة
+    window.onload = function() {
+        const today = new Date();
+        const nextTenDays = new Date();
+        nextTenDays.setDate(today.getDate() + 10);
+        
+        document.getElementById('checkIn').value = today.toISOString().split('T')[0];
+        document.getElementById('checkOut').value = nextTenDays.toISOString().split('T')[0];
+        calculateDays();
+        
+        // تعيين عنوان الموقع في النافذة المنبثقة تلقائياً
+        document.getElementById('modalTitle').innerText = "يعرض موقع \n" + window.location.hostname;
+        
+        // إضافة خانة زائر أولى تلقائياً
+        addVisitorRow();
+    };
+
+    // حساب عدد الأيام بين التاريخين
+    function calculateDays() {
+        const checkInStr = document.getElementById('checkIn').value;
+        const checkOutStr = document.getElementById('checkOut').value;
+        
+        if (checkInStr && checkOutStr) {
+            const inDate = new Date(checkInStr);
+            const outDate = new Date(checkOutStr);
+            const timeDiff = outDate.getTime() - inDate.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            document.getElementById('daysDisplay').innerText = "عدد الأيام: " + (daysDiff > 0 ? daysDiff : 0);
+        }
+    }
+
+    // إضافة سطر جديد لإدخال اسم زائر
+    function addVisitorRow() {
+        const container = document.getElementById('visitorsContainer');
+        const row = document.createElement('div');
+        row.className = 'visitor-row';
+        row.innerHTML = `
+            <input type="text" placeholder="اسم الزائر / المرافق" required>
+            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">حذف</button>
+        `;
+        container.appendChild(row);
+    }
+
+    // معالجة الضغط على زر الحفظ
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const savingScreen = document.getElementById('savingScreen');
+        const permitIdVal = document.getElementById('permitId').value;
+        
+        // إخفاء الزر وإظهار كلمة جاري الحفظ
+        submitBtn.style.display = 'none';
+        savingScreen.style.display = 'block';
+        
+        // محاكاة عملية الحفظ لمدة ثانيتين مثل النظام القديم
+        setTimeout(() => {
+            submitBtn.style.display = 'block';
+            savingScreen.style.display = 'none';
+            
+            // إظهار الرقم في النافذة المنبثقة
+            document.getElementById('successPermitId').innerText = permitIdVal;
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }, 1500);
+    }
+
+    // إغلاق النافذة المنبثقة
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById('appForm').reset();
+        document.getElementById('visitorsContainer').innerHTML = '';
+        window.onload();
+    }
+</script>
+
+</body>
+  </html>
+  
